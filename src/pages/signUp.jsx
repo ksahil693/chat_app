@@ -22,13 +22,13 @@ const Register = () => {
     try {
       //Create user
       const res = await createUserWithEmailAndPassword(auth, email, password);
-
+      console.log(res);
       //Create a unique image name
       const date = new Date().getTime();
       const storageRef = ref(storage, `${displayName + date}`);
-
-      await uploadBytesResumable(storageRef, file).then(() => {
-        getDownloadURL(storageRef).then(async (downloadURL) => {
+      
+      await uploadBytesResumable(storageRef, file).then(async() => {
+       await getDownloadURL(storageRef).then(async (downloadURL) => {
           try {
             //Update profile
             await updateProfile(res.user, {
@@ -45,6 +45,7 @@ const Register = () => {
 
             //create empty user chats on firestore
             await setDoc(doc(db, "userChats", res.user.uid), {});
+            console.log("going to home page")
             navigate("/");
           } catch (err) {
             console.log(err);
@@ -78,7 +79,7 @@ const Register = () => {
           {err && <span>Something went wrong</span>}
         </form>
         <p>
-          You do have an account? <Link to="/register">Login</Link>
+          You do have an account? <Link to="/login">Login</Link>
         </p>
       </div>
     </div>

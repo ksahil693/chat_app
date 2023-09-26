@@ -20,36 +20,28 @@ const Input = () => {
 
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
-
+  const [loading,setLoading] = useState(false)
   const handleSend = async () => {
+    setLoading(true);
     if (img) {
       const storageRef = ref(storage, uuid());
 
-      const uploadTask = uploadBytesResumable(storageRef, img);
+      await uploadBytesResumable(storageRef, img).then(async() => {
+        await getDownloadURL(storageRef).then(async (downloadURL) => {
       try{
-
-        uploadTask.on(
-          (error) => {
-          //TODO:Handle Error
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-            await updateDoc(doc(db, "chats", data.chatId), {
-              messages: arrayUnion({
-                id: uuid(),
-                text,
-                senderId: currentUser.uid,
-                date: Timestamp.now(),
-                img: downloadURL,
-              }),
-            });
-          });
-        }
-        );
-        
+        await updateDoc(doc(db, "chats", data.chatId), {
+          messages: arrayUnion({
+            id: uuid(),
+            text,
+            senderId: currentUser.uid,
+            date: Timestamp.now(),
+            img: downloadURL,
+          }),
+        });     
       }catch(err){
-
+        console.log(err);
       }
+    })}).catch(err=>console.log(err));
     } else {
       await updateDoc(doc(db, "chats", data.chatId), {
         messages: arrayUnion({
@@ -77,6 +69,7 @@ const Input = () => {
 
     setText("");
     setImg(null);
+    setLoading(false);
   };
   return (
     <div className="input">
@@ -97,7 +90,7 @@ const Input = () => {
         <label htmlFor="file">
           <img src={Img} alt="" />
         </label>
-        <button  onClick={handleSend}>Send</button>
+        <button disabled={loading} onClick={handleSend}>Send</button>
       </div>
     </div>
   );

@@ -12,8 +12,8 @@ const Chats = () => {
 
   useEffect(() => {
     const getChats = () => {
-      const unsub = onSnapshot(doc(db, "userChats", currentUser.uid), (doc) => {
-        setChats(doc.data());
+      const unsub = onSnapshot(doc(db, "userChats", currentUser.uid),async (doc) => {
+        await setChats(doc.data());
       });
 
       return () => {
