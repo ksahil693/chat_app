@@ -91,7 +91,7 @@ const Input = () => {
           <img src={Img} alt="" />
         </label>
         <button disabled={loading} onClick={handleSend}>Send</button>
-      </div>
+      </div> 
     </div>
   );
 };
